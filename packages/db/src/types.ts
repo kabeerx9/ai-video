@@ -1,2 +1,2 @@
-export type { User, CreditTransaction, Prisma } from "../prisma/generated/client";
-export { CreditTransactionType } from "../prisma/generated/client";
+export type { User, CreditTransaction, GenerationJob, Prisma } from "../prisma/generated/client";
+export { CreditTransactionType, JobStatus } from "../prisma/generated/client";

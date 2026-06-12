@@ -78,3 +78,32 @@ export async function grantCredits(
     return updatedUser;
   });
 }
+
+export async function refundCredits(
+  userId: string,
+  amount: number,
+  options: CreditMutationOptions = {},
+): Promise<User> {
+  if (amount <= 0) {
+    throw new Error("Refund amount must be greater than zero");
+  }
+
+  return prisma.$transaction(async (tx) => {
+    const updatedUser = await tx.user.update({
+      where: { id: userId },
+      data: { credits: { increment: amount } },
+    });
+
+    await tx.creditTransaction.create({
+      data: {
+        userId,
+        amount,
+        type: CreditTransactionType.REFUND,
+        description: options.description,
+        metadata: options.metadata,
+      },
+    });
+
+    return updatedUser;
+  });
+}

@@ -85,6 +85,19 @@ Open [http://localhost:3001](http://localhost:3001) in your browser to see the w
 Use the Expo Go app to run the mobile application.
 The API is running at [http://localhost:3000](http://localhost:3000).
 
+## Video generation (OpenRouter)
+
+Set `OPENROUTER_API_KEY` in `apps/server/.env`.
+
+Each generation costs **10 credits**. Grant yourself credits in Supabase (`User.credits`) or via Prisma Studio while testing.
+
+API routes:
+
+- `GET /api/videos/models` — list video models from OpenRouter
+- `POST /api/videos/generate` — start a generation job
+- `GET /api/videos/jobs/:id` — poll job status
+- `GET /api/videos/jobs/:id/content` — stream the temporary generated video
+
 ## UI Customization
 
 React web apps in this stack share shadcn/ui primitives through `packages/ui`.

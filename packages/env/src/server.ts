@@ -10,6 +10,7 @@ export const env = createEnv({
     CLERK_PUBLISHABLE_KEY: z.string().min(1),
     CLERK_WEBHOOK_SIGNING_SECRET: z.string().min(1).optional(),
     CORS_ORIGIN: z.url(),
+    OPENROUTER_API_KEY: z.string().min(1),
     NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   },
   runtimeEnv: process.env,

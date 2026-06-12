@@ -52,3 +52,67 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
 export function getMe() {
   return apiFetch<MeResponse>("/api/me");
 }
+
+export type VideoModel = {
+  id: string;
+  name: string;
+  description: string | null;
+  supportedResolutions: string[];
+  supportedAspectRatios: string[];
+  pricingSkus: Record<string, string>;
+};
+
+export type GenerationJob = {
+  id: string;
+  prompt: string;
+  model: string;
+  status: string;
+  creditsCharged: number;
+  error: string | null;
+  videoUrl: string | null;
+  openRouterCostUsd: number | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export function getVideoModels() {
+  return apiFetch<{ models: VideoModel[] }>("/api/videos/models");
+}
+
+export function generateVideo(body: {
+  prompt: string;
+  model: string;
+  duration?: number;
+  resolution?: string;
+  aspectRatio?: string;
+}) {
+  return apiFetch<{ job: GenerationJob }>("/api/videos/generate", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+export function getGenerationJob(jobId: string) {
+  return apiFetch<{ job: GenerationJob }>(`/api/videos/jobs/${jobId}`);
+}
+
+export async function fetchGenerationJobVideoBlob(jobId: string): Promise<Blob> {
+  const token = await getClerkAuthToken();
+  const headers = new Headers();
+
+  if (token) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
+
+  const response = await fetch(`${env.VITE_SERVER_URL}/api/videos/jobs/${jobId}/content`, {
+    headers,
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    const payload = (await response.json().catch(() => null)) as { error?: string } | null;
+    throw new ApiError(response.status, payload?.error ?? response.statusText);
+  }
+
+  return response.blob();
+}
