@@ -67,6 +67,14 @@ The server exposes `POST /webhooks/clerk` to keep the `User` table in sync with 
 
 If the webhook is not configured yet, signed-in users are still created on first `GET /api/me` (JIT fallback).
 
+### Google OAuth (web)
+
+Google sign-in redirects back to `/sso-callback`. Add this in the Clerk Dashboard:
+
+1. **Configure** → **Paths** → ensure sign-in URL is `/` and sign-up URL is `/sign-up`
+2. **Configure** → **Allowed redirect URLs** → add `http://localhost:3001/sso-callback`
+3. **User & Authentication** → **Social connections** → enable **Google**
+
 Then, run the development server:
 
 ```bash

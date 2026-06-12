@@ -19,7 +19,12 @@ function SignUpPage() {
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 p-6">
       <h1 className="text-2xl font-semibold">AI Video</h1>
-      <SignUp routing="path" path="/sign-up" signInUrl="/" />
+      <SignUp
+        routing="path"
+        path="/sign-up"
+        signInUrl="/"
+        fallbackRedirectUrl="/dashboard"
+      />
     </div>
   );
 }

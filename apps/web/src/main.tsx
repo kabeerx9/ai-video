@@ -15,7 +15,13 @@ const router = createRouter({
   context: {},
   Wrap: function WrapComponent({ children }: { children: React.ReactNode }) {
     return (
-      <ClerkProvider publishableKey={env.VITE_CLERK_PUBLISHABLE_KEY}>
+      <ClerkProvider
+        publishableKey={env.VITE_CLERK_PUBLISHABLE_KEY}
+        signInUrl="/"
+        signUpUrl="/sign-up"
+        signInFallbackRedirectUrl="/dashboard"
+        signUpFallbackRedirectUrl="/dashboard"
+      >
         <ClerkAuthSetup>{children}</ClerkAuthSetup>
       </ClerkProvider>
     );
