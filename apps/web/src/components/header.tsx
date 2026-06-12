@@ -1,26 +1,23 @@
+import { useAuth } from "@clerk/react";
 import { Link } from "@tanstack/react-router";
 
 import { ModeToggle } from "./mode-toggle";
 
 export default function Header() {
-  const links = [
-    { to: "/", label: "Home" },
-    { to: "/dashboard", label: "Dashboard" },
-  ] as const;
+  const { isSignedIn } = useAuth();
 
   return (
     <div>
-      <div className="flex flex-row items-center justify-between px-2 py-1">
-        <nav className="flex gap-4 text-lg">
-          {links.map(({ to, label }) => {
-            return (
-              <Link key={to} to={to}>
-                {label}
-              </Link>
-            );
-          })}
-        </nav>
-        <div className="flex items-center gap-2">
+      <div className="flex flex-row items-center justify-between px-4 py-2">
+        <Link to="/" className="text-lg font-semibold">
+          AI Video
+        </Link>
+        <div className="flex items-center gap-4">
+          {isSignedIn ? (
+            <Link to="/dashboard">Dashboard</Link>
+          ) : (
+            <Link to="/sign-up">Sign up</Link>
+          )}
           <ModeToggle />
         </div>
       </div>

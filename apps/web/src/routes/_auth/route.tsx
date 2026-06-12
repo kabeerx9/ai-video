@@ -1,23 +1,19 @@
-import { SignInButton, useUser } from "@clerk/react";
-import { Outlet, createFileRoute } from "@tanstack/react-router";
+import { useAuth } from "@clerk/react";
+import { Navigate, Outlet, createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_auth")({
   component: AuthLayout,
 });
 
 function AuthLayout() {
-  const user = useUser();
+  const { isLoaded, isSignedIn } = useAuth();
 
-  if (!user.isLoaded) {
-    return <div className="p-6">Loading...</div>;
+  if (!isLoaded) {
+    return <div className="flex min-h-[60vh] items-center justify-center">Loading...</div>;
   }
 
-  if (!user.user) {
-    return (
-      <div className="p-6">
-        <SignInButton />
-      </div>
-    );
+  if (!isSignedIn) {
+    return <Navigate to="/" />;
   }
 
   return <Outlet />;

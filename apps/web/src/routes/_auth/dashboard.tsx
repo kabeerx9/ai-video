@@ -2,25 +2,27 @@ import { UserButton, useUser } from "@clerk/react";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_auth/dashboard")({
-  component: RouteComponent,
+  component: DashboardPage,
 });
 
-function RouteComponent() {
-  const user = useUser();
-  const nameFromParts = [user.user?.firstName, user.user?.lastName].filter(Boolean).join(" ");
-  const displayName =
-    user.user?.fullName ||
-    nameFromParts ||
-    user.user?.username ||
-    user.user?.primaryEmailAddress?.emailAddress ||
-    user.user?.primaryPhoneNumber?.phoneNumber ||
-    "User";
+function DashboardPage() {
+  const { user } = useUser();
+  const name =
+    user?.fullName ||
+    user?.firstName ||
+    user?.primaryEmailAddress?.emailAddress ||
+    "there";
 
   return (
-    <div className="space-y-4 p-6">
-      <h1 className="text-2xl font-semibold">Dashboard</h1>
-      <p>Welcome {displayName}</p>
-      <UserButton />
+    <div className="mx-auto flex max-w-2xl flex-col gap-6 p-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold">AI Video</h1>
+        <UserButton />
+      </div>
+      <p className="text-muted-foreground">Welcome, {name}</p>
+      <div className="rounded-lg border p-8 text-center text-muted-foreground">
+        Your video generation workspace — coming soon.
+      </div>
     </div>
   );
 }

@@ -9,7 +9,7 @@ export const SignOutButton = () => {
   const handleSignOut = async () => {
     try {
       await signOut();
-      router.replace("/");
+      router.replace("/sign-in");
     } catch (err) {
       console.error(JSON.stringify(err, null, 2));
     }
