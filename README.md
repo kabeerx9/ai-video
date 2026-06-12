@@ -27,12 +27,21 @@ pnpm install
 
 ## Database Setup
 
-This project uses PostgreSQL with Prisma.
+This project uses PostgreSQL with Prisma and is configured for Supabase.
 
-1. Make sure you have a PostgreSQL database set up.
-2. Update your `apps/server/.env` file with your PostgreSQL connection details.
+1. Update `apps/server/.env` with your Supabase connection strings:
 
-3. Apply the schema to your database:
+```bash
+# Pooled — used by the server at runtime (transaction pooler, port 6543)
+DATABASE_URL="postgresql://postgres.[project-ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres?pgbouncer=true"
+
+# Direct — used by Prisma CLI for db push / migrate (session pooler, port 5432)
+DIRECT_URL="postgresql://postgres.[project-ref]:[password]@aws-0-[region].pooler.supabase.com:5432/postgres"
+```
+
+For local Postgres, set both `DATABASE_URL` and `DIRECT_URL` to the same connection string.
+
+2. Apply the schema:
 
 ```bash
 pnpm run db:push

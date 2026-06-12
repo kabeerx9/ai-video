@@ -1,10 +1,47 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../generated"
+  provider     = "prisma-client"
+  output       = "../generated"
   moduleFormat = "esm"
-  runtime = "nodejs"
+  runtime      = "nodejs"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+model User {
+  id       String  @id @default(cuid())
+  clerkId  String  @unique
+  email    String? @unique
+  name     String?
+  imageUrl String?
+
+  credits Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  creditTransactions CreditTransaction[]
+}
+
+model CreditTransaction {
+  id          String                @id @default(cuid())
+  userId      String
+  amount      Int
+  type        CreditTransactionType
+  description String?
+  metadata    Json?
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+enum CreditTransactionType {
+  GRANT
+  SPEND
+  REFUND
+  ADJUSTMENT
 }
