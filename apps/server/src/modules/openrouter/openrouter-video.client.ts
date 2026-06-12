@@ -2,6 +2,7 @@ import { env } from "@ai-video/env/server";
 
 import { OPENROUTER_API_BASE } from "@/domain/video-generation/types";
 import { OpenRouterApiError } from "@/domain/video-generation/errors";
+import { parseOpenRouterErrorPayload } from "@/modules/openrouter/openrouter-error";
 import type {
   CreateVideoGenerationInput,
   OpenRouterJobStatus,
@@ -122,11 +123,9 @@ export class OpenRouterVideoClient implements IOpenRouterVideoClient {
     });
 
     if (!response.ok) {
-      const payload = (await response.json().catch(() => null)) as { error?: string } | null;
-      throw new OpenRouterApiError(
-        response.status,
-        payload?.error ?? `OpenRouter request failed (${response.status})`,
-      );
+      const payload = await response.json().catch(() => null);
+      const { message, status } = parseOpenRouterErrorPayload(payload, response.status);
+      throw new OpenRouterApiError(status, message);
     }
 
     return response.json() as Promise<T>;

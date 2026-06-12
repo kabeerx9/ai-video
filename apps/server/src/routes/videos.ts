@@ -41,7 +41,8 @@ function handleRouteError(error: unknown, reply: FastifyReply) {
   }
 
   if (error instanceof OpenRouterApiError) {
-    return reply.code(502).send({ error: error.message });
+    const statusCode = error.status >= 400 && error.status < 600 ? error.status : 502;
+    return reply.code(statusCode).send({ error: error.message });
   }
 
   if (error instanceof z.ZodError) {
