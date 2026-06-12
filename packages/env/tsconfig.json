@@ -1,0 +1,3 @@
+{
+  "extends": "@ai-video/config/tsconfig.base.json"
+}
