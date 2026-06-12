@@ -55,13 +55,25 @@ pnpm run db:push
 - Set `CLERK_SECRET_KEY` in `apps/server/.env` for server-side Clerk auth
 - Set `CLERK_PUBLISHABLE_KEY` in `apps/server/.env` for Clerk backend middleware
 
+### Clerk webhook (user sync)
+
+The server exposes `POST /webhooks/clerk` to keep the `User` table in sync with Clerk.
+
+1. In the [Clerk Dashboard](https://dashboard.clerk.com) → **Webhooks** → **Add Endpoint**
+2. Set the URL to your server, e.g. `https://your-domain.com/webhooks/clerk`
+   - For local dev, use [ngrok](https://ngrok.com) or similar: `ngrok http 3000`
+3. Subscribe to: `user.created`, `user.updated`, `user.deleted`
+4. Copy the **Signing Secret** into `CLERK_WEBHOOK_SIGNING_SECRET` in `apps/server/.env`
+
+If the webhook is not configured yet, signed-in users are still created on first `GET /api/me` (JIT fallback).
+
 Then, run the development server:
 
 ```bash
 pnpm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173) in your browser to see the web application.
+Open [http://localhost:3001](http://localhost:3001) in your browser to see the web application.
 Use the Expo Go app to run the mobile application.
 The API is running at [http://localhost:3000](http://localhost:3000).
 

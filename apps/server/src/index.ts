@@ -3,6 +3,9 @@ import { clerkPlugin } from "@clerk/fastify";
 import fastifyCors from "@fastify/cors";
 import Fastify from "fastify";
 
+import { registerMeRoutes } from "@/routes/me";
+import { registerClerkWebhookRoutes } from "@/routes/webhooks/clerk";
+
 const baseCorsConfig = {
   origin: env.CORS_ORIGIN,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -24,6 +27,9 @@ fastify.register(clerkPlugin, {
 fastify.get("/", async () => {
   return "OK";
 });
+
+fastify.register(registerMeRoutes);
+fastify.register(registerClerkWebhookRoutes);
 
 fastify.listen({ port: 3000 }, (err) => {
   if (err) {

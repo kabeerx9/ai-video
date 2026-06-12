@@ -4,6 +4,7 @@ import { RouterProvider, createRouter } from "@tanstack/react-router";
 import ReactDOM from "react-dom/client";
 
 import Loader from "./components/loader";
+import { ClerkAuthSetup } from "./components/clerk-auth-setup";
 import { routeTree } from "./routeTree.gen";
 
 const router = createRouter({
@@ -14,7 +15,9 @@ const router = createRouter({
   context: {},
   Wrap: function WrapComponent({ children }: { children: React.ReactNode }) {
     return (
-      <ClerkProvider publishableKey={env.VITE_CLERK_PUBLISHABLE_KEY}>{children}</ClerkProvider>
+      <ClerkProvider publishableKey={env.VITE_CLERK_PUBLISHABLE_KEY}>
+        <ClerkAuthSetup>{children}</ClerkAuthSetup>
+      </ClerkProvider>
     );
   },
 });
