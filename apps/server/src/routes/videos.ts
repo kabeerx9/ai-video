@@ -15,6 +15,10 @@ const generateVideoBodySchema = z.object({
   aspectRatio: z.string().trim().min(1).optional(),
 });
 
+const listJobsQuerySchema = z.object({
+  limit: z.coerce.number().int().min(1).max(50).default(12),
+});
+
 async function resolveAuthenticatedUserId(request: FastifyRequest, reply: FastifyReply) {
   const { userId: clerkUserId } = getAuth(request);
 
@@ -79,6 +83,21 @@ export function registerVideoRoutes(fastify: FastifyInstance, container: AppCont
       const body = generateVideoBodySchema.parse(request.body);
       const job = await videoGenerationService.startGeneration(userId, body);
       return reply.code(202).send({ job });
+    } catch (error) {
+      return handleRouteError(error, reply);
+    }
+  });
+
+  fastify.get("/api/videos/jobs", async (request, reply) => {
+    const userId = await resolveAuthenticatedUserId(request, reply);
+    if (!userId) {
+      return;
+    }
+
+    try {
+      const { limit } = listJobsQuerySchema.parse(request.query);
+      const jobs = await videoGenerationService.listJobs(userId, limit);
+      return { jobs };
     } catch (error) {
       return handleRouteError(error, reply);
     }

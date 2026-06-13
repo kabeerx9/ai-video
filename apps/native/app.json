@@ -1,12 +1,12 @@
 {
   "expo": {
-    "name": "ai-video",
+    "name": "AI Video",
     "slug": "ai-video",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "ai-video",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true
     },
@@ -32,9 +32,9 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#F3F0EE",
           "dark": {
-            "backgroundColor": "#000000"
+            "backgroundColor": "#F3F0EE"
           }
         }
       ]

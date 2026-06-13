@@ -1,0 +1,16 @@
+export const colors = {
+  canvas: "#F3F0EE",
+  lifted: "#FCFBFA",
+  white: "#FFFFFF",
+  ink: "#141413",
+  charcoal: "#262627",
+  muted: "#696969",
+  whisper: "#E8E2DA",
+  border: "rgba(20, 20, 19, 0.12)",
+  orange: "#F37338",
+  rust: "#9A3A0A",
+  danger: "#B42318",
+  dangerSurface: "#FEF3F2",
+  success: "#067647",
+  successSurface: "#ECFDF3",
+};

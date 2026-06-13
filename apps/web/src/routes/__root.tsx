@@ -1,8 +1,5 @@
 import { Toaster } from "@ai-video/ui/components/sonner";
 import { HeadContent, Outlet, createRootRouteWithContext } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-
-import Header from "@/components/header";
 import { ThemeProvider } from "@/components/theme-provider";
 
 import "../index.css";
@@ -14,11 +11,11 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
   head: () => ({
     meta: [
       {
-        title: "ai-video",
+        title: "AI Video | Create from a prompt",
       },
       {
         name: "description",
-        content: "ai-video is a web application",
+        content: "Turn a written idea into a finished video.",
       },
     ],
     links: [
@@ -36,17 +33,16 @@ function RootComponent() {
       <HeadContent />
       <ThemeProvider
         attribute="class"
-        defaultTheme="dark"
+        defaultTheme="light"
+        forcedTheme="light"
         disableTransitionOnChange
         storageKey="vite-ui-theme"
       >
-        <div className="grid grid-rows-[auto_1fr] h-svh">
-          <Header />
+        <div className="min-h-svh">
           <Outlet />
         </div>
         <Toaster richColors />
       </ThemeProvider>
-      <TanStackRouterDevtools position="bottom-left" />
     </>
   );
 }

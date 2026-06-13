@@ -96,6 +96,10 @@ export function getGenerationJob(jobId: string) {
   return apiFetch<{ job: GenerationJob }>(`/api/videos/jobs/${jobId}`);
 }
 
+export function getGenerationJobs(limit = 12) {
+  return apiFetch<{ jobs: GenerationJob[] }>(`/api/videos/jobs?limit=${limit}`);
+}
+
 export async function fetchGenerationJobVideoBlob(jobId: string): Promise<Blob> {
   const token = await getClerkAuthToken();
   const headers = new Headers();

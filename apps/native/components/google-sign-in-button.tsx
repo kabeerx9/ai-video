@@ -1,7 +1,10 @@
 import { useSSO } from "@clerk/expo";
 import * as AuthSession from "expo-auth-session";
 import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 import { Pressable, StyleSheet, Text } from "react-native";
+
+import { colors } from "@/lib/theme";
 
 export function GoogleSignInButton() {
   const { startSSOFlow } = useSSO();
@@ -25,6 +28,7 @@ export function GoogleSignInButton() {
 
   return (
     <Pressable style={({ pressed }) => [styles.button, pressed && styles.pressed]} onPress={onPress}>
+      <Ionicons color={colors.ink} name="logo-google" size={18} />
       <Text style={styles.text}>Continue with Google</Text>
     </Pressable>
   );
@@ -33,17 +37,22 @@ export function GoogleSignInButton() {
 const styles = StyleSheet.create({
   button: {
     borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
+    borderColor: colors.border,
+    borderRadius: 24,
+    minHeight: 48,
+    paddingHorizontal: 18,
     alignItems: "center",
+    backgroundColor: colors.white,
+    flexDirection: "row",
+    gap: 10,
+    justifyContent: "center",
   },
   pressed: {
     opacity: 0.7,
   },
   text: {
+    color: colors.ink,
     fontWeight: "600",
-    fontSize: 16,
+    fontSize: 14,
   },
 });

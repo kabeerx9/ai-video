@@ -5,6 +5,7 @@ import type {
 
 export interface IGenerationJobRepository {
   create(input: CreateGenerationJobInput): Promise<GenerationJobRecord>;
+  listByUser(userId: string, limit: number): Promise<GenerationJobRecord[]>;
   findByIdForUser(jobId: string, userId: string): Promise<GenerationJobRecord | null>;
   updateFromOpenRouter(
     jobId: string,

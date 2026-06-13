@@ -51,6 +51,16 @@ export class PrismaGenerationJobRepository implements IGenerationJobRepository {
     return mapRecord(job);
   }
 
+  async listByUser(userId: string, limit: number): Promise<GenerationJobRecord[]> {
+    const jobs = await prisma.generationJob.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+      take: limit,
+    });
+
+    return jobs.map(mapRecord);
+  }
+
   async findByIdForUser(jobId: string, userId: string): Promise<GenerationJobRecord | null> {
     const job = await prisma.generationJob.findFirst({
       where: { id: jobId, userId },

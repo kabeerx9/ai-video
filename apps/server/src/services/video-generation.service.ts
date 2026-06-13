@@ -35,6 +35,11 @@ export class VideoGenerationService {
     return this.openRouterClient.listModels();
   }
 
+  async listJobs(userId: string, limit = 12): Promise<GenerationJobView[]> {
+    const jobs = await this.jobRepository.listByUser(userId, limit);
+    return jobs.map((job) => this.toView(job, null));
+  }
+
   async startGeneration(
     userId: string,
     input: CreateVideoGenerationInput,

@@ -3,7 +3,9 @@ import { type Href, Link, useRouter } from "expo-router";
 import React from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
+import { AuthShell } from "@/components/auth-shell";
 import { GoogleSignInButton } from "@/components/google-sign-in-button";
+import { colors } from "@/lib/theme";
 
 function pushDecoratedUrl(
   router: ReturnType<typeof useRouter>,
@@ -95,8 +97,11 @@ export default function Page() {
 
   if (requiresEmailCode) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.title}>Verify your account</Text>
+      <AuthShell
+        eyebrow="One last step"
+        title="Check your inbox."
+        subtitle="Enter the security code Clerk sent to your email address."
+      >
         {statusMessage && <Text style={styles.helper}>{statusMessage}</Text>}
         <TextInput
           style={styles.input}
@@ -124,13 +129,16 @@ export default function Page() {
         >
           <Text style={styles.secondaryButtonText}>I need a new code</Text>
         </Pressable>
-      </View>
+      </AuthShell>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Sign in</Text>
+    <AuthShell
+      eyebrow="Welcome back"
+      title="Enter your studio."
+      subtitle="Sign in to create, preview, and save your generated videos."
+    >
       {statusMessage && <Text style={styles.helper}>{statusMessage}</Text>}
       <GoogleSignInButton />
       <Text style={styles.divider}>or</Text>
@@ -169,45 +177,43 @@ export default function Page() {
         <Text style={styles.buttonText}>Sign in</Text>
       </Pressable>
       <View style={styles.linkContainer}>
-        <Text>Don't have an account? </Text>
+        <Text style={styles.linkPrompt}>Don't have an account? </Text>
         <Link href="/sign-up">
           <Text style={styles.linkText}>Sign up</Text>
         </Link>
       </View>
-    </View>
+    </AuthShell>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    gap: 12,
-  },
-  title: {
-    marginBottom: 8,
-    fontSize: 24,
-    fontWeight: "700",
-  },
   label: {
-    fontWeight: "600",
-    fontSize: 14,
+    color: colors.ink,
+    fontWeight: "800",
+    fontSize: 11,
+    letterSpacing: 1,
+    marginBottom: 7,
+    marginTop: 16,
+    textTransform: "uppercase",
   },
   input: {
     borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    padding: 12,
+    borderColor: colors.border,
+    borderRadius: 20,
+    minHeight: 50,
+    paddingHorizontal: 16,
     fontSize: 16,
-    backgroundColor: "#fff",
+    color: colors.ink,
+    backgroundColor: colors.white,
   },
   button: {
-    backgroundColor: "#0a7ea4",
-    paddingVertical: 12,
+    backgroundColor: colors.ink,
+    minHeight: 50,
     paddingHorizontal: 24,
-    borderRadius: 8,
+    borderRadius: 25,
     alignItems: "center",
-    marginTop: 8,
+    justifyContent: "center",
+    marginTop: 18,
   },
   buttonPressed: {
     opacity: 0.7,
@@ -216,8 +222,8 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   buttonText: {
-    color: "#fff",
-    fontWeight: "600",
+    color: colors.canvas,
+    fontWeight: "700",
   },
   secondaryButton: {
     paddingVertical: 12,
@@ -227,31 +233,40 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   secondaryButtonText: {
-    color: "#0a7ea4",
-    fontWeight: "600",
+    color: colors.rust,
+    fontWeight: "700",
   },
   linkContainer: {
     flexDirection: "row",
     gap: 4,
-    marginTop: 12,
+    marginTop: 18,
     alignItems: "center",
+    justifyContent: "center",
   },
+  linkPrompt: { color: colors.muted, fontSize: 13 },
   linkText: {
-    color: "#0a7ea4",
-    fontWeight: "600",
+    color: colors.rust,
+    fontWeight: "700",
+    fontSize: 13,
   },
   error: {
-    color: "#d32f2f",
+    color: colors.danger,
     fontSize: 12,
-    marginTop: -8,
+    marginTop: 6,
   },
   helper: {
-    color: "#555555",
+    backgroundColor: colors.canvas,
+    borderRadius: 18,
+    color: colors.muted,
     fontSize: 13,
+    lineHeight: 19,
+    marginBottom: 14,
+    padding: 12,
   },
   divider: {
     textAlign: "center",
-    opacity: 0.5,
-    marginVertical: 4,
+    color: colors.muted,
+    fontSize: 12,
+    marginVertical: 16,
   },
 });

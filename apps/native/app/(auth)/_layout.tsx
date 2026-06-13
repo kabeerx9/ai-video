@@ -18,9 +18,9 @@ export default function AuthRoutesLayout() {
   }
 
   return (
-    <Stack screenOptions={{ headerShown: true, title: "AI Video" }}>
-      <Stack.Screen name="sign-in" options={{ title: "Sign in" }} />
-      <Stack.Screen name="sign-up" options={{ title: "Sign up" }} />
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="sign-in" />
+      <Stack.Screen name="sign-up" />
     </Stack>
   );
 }

@@ -33,7 +33,7 @@ export default function RootLayout() {
     <ClerkProvider tokenCache={tokenCache} publishableKey={env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY}>
       <ClerkAuthSetup>
         <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
-          <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
+          <StatusBar style="dark" />
           <GestureHandlerRootView style={styles.container}>
             <Stack screenOptions={{ headerShown: false }}>
               <Stack.Screen name="index" />
