@@ -85,6 +85,52 @@ Open [http://localhost:3001](http://localhost:3001) in your browser to see the w
 Use the Expo Go app to run the mobile application.
 The API is running at [http://localhost:3000](http://localhost:3000).
 
+## EAS development and preview builds
+
+The native app is linked to the EAS project
+[`@kabeerx9/ai-video`](https://expo.dev/accounts/kabeerx9/projects/ai-video).
+
+Build profiles:
+
+- `development`: includes Expo Dev Client and developer tools
+- `development-simulator`: development client for the iOS Simulator
+- `preview`: production-like internal build with an EAS installation URL
+- `production`: store build
+
+Before creating a preview build, deploy the API to a public HTTPS URL and configure it:
+
+```bash
+cd apps/native
+eas env:create --environment preview \
+  --name EXPO_PUBLIC_SERVER_URL \
+  --value https://api.example.com \
+  --visibility plaintext
+```
+
+Create and share an Android preview:
+
+```bash
+pnpm run build:native:preview:android
+```
+
+EAS returns a URL that testers can open to install the APK. For iOS internal
+distribution, testers' devices must be registered with `eas device:create` and
+the build requires an Apple Developer account.
+
+Create a development client:
+
+```bash
+pnpm run build:native:development:android
+pnpm run dev:native:client
+```
+
+After a preview build is installed, publish JavaScript and asset changes without
+rebuilding native code:
+
+```bash
+pnpm run update:native:preview -- --message "Describe the update"
+```
+
 ## Video generation (OpenRouter)
 
 Set `OPENROUTER_API_KEY` in `apps/server/.env`.

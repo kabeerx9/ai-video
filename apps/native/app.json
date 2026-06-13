@@ -2,13 +2,15 @@
   "expo": {
     "name": "AI Video",
     "slug": "ai-video",
+    "owner": "kabeerx9",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "ai-video",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.kabeerx9.aivideo"
     },
     "android": {
       "adaptiveIcon": {
@@ -18,7 +20,7 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.mybettertapp"
+      "package": "com.kabeerx9.aivideo"
     },
     "web": {
       "output": "static",
@@ -42,6 +44,18 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "4f7c5eb6-2ff3-4adb-bdb1-95b6f62afdee"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/4f7c5eb6-2ff3-4adb-bdb1-95b6f62afdee"
     }
   }
 }
