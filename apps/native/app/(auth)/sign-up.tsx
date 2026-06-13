@@ -6,6 +6,7 @@ import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { AuthShell } from "@/components/auth-shell";
 import { GoogleSignInButton } from "@/components/google-sign-in-button";
 import { colors } from "@/lib/theme";
+import { formatClerkAuthError } from "@/utils/clerk-errors";
 
 function pushDecoratedUrl(
   router: ReturnType<typeof useRouter>,
@@ -29,42 +30,60 @@ export default function Page() {
   const handleSubmit = async () => {
     setStatusMessage(null);
 
-    const { error } = await signUp.password({
-      emailAddress,
-      password,
-    });
+    try {
+      const { error } = await signUp.password({
+        emailAddress: emailAddress.trim(),
+        password,
+      });
 
-    if (error) {
-      console.error(JSON.stringify(error, null, 2));
-      setStatusMessage(error.longMessage ?? "Unable to sign up. Please try again.");
-      return;
+      if (error) {
+        setStatusMessage(formatClerkAuthError(error, "Unable to sign up. Please try again."));
+        return;
+      }
+
+      const { error: verificationError } = await signUp.verifications.sendEmailCode();
+      if (verificationError) {
+        setStatusMessage(
+          formatClerkAuthError(verificationError, "Unable to send a verification code."),
+        );
+        return;
+      }
+
+      setStatusMessage(`We sent a verification code to ${emailAddress.trim()}.`);
+    } catch (error) {
+      setStatusMessage(formatClerkAuthError(error, "Unable to sign up. Please try again."));
     }
-
-    await signUp.verifications.sendEmailCode();
-    setStatusMessage(`We sent a verification code to ${emailAddress}.`);
   };
 
   const handleVerify = async () => {
     setStatusMessage(null);
 
-    await signUp.verifications.verifyEmailCode({
-      code,
-    });
-
-    if (signUp.status === "complete") {
-      await signUp.finalize({
-        navigate: ({ session, decorateUrl }) => {
-          if (session?.currentTask) {
-            console.log(session.currentTask);
-            return;
-          }
-
-          pushDecoratedUrl(router, decorateUrl, "/");
-        },
+    try {
+      const { error } = await signUp.verifications.verifyEmailCode({
+        code: code.trim(),
       });
-    } else {
-      console.error("Sign-up attempt not complete:", signUp);
-      setStatusMessage("That code did not complete sign-up. Please try again.");
+
+      if (error) {
+        setStatusMessage(formatClerkAuthError(error, "That verification code is not valid."));
+        return;
+      }
+
+      if (signUp.status === "complete") {
+        await signUp.finalize({
+          navigate: ({ session, decorateUrl }) => {
+            if (session?.currentTask) {
+              setStatusMessage("Your account needs one more security step.");
+              return;
+            }
+
+            pushDecoratedUrl(router, decorateUrl, "/");
+          },
+        });
+      } else {
+        setStatusMessage("That code did not complete sign-up. Please try again.");
+      }
+    } catch (error) {
+      setStatusMessage(formatClerkAuthError(error, "That verification code is not valid."));
     }
   };
 

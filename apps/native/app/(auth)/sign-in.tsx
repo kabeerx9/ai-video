@@ -6,6 +6,7 @@ import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { AuthShell } from "@/components/auth-shell";
 import { GoogleSignInButton } from "@/components/google-sign-in-button";
 import { colors } from "@/lib/theme";
+import { formatClerkAuthError } from "@/utils/clerk-errors";
 
 function pushDecoratedUrl(
   router: ReturnType<typeof useRouter>,
@@ -35,63 +36,81 @@ export default function Page() {
   const handleSubmit = async () => {
     setStatusMessage(null);
 
-    const { error } = await signIn.password({
-      emailAddress,
-      password,
-    });
+    try {
+      const { error } = await signIn.password({
+        emailAddress: emailAddress.trim(),
+        password,
+      });
 
-    if (error) {
-      console.error(JSON.stringify(error, null, 2));
-      setStatusMessage(error.longMessage ?? "Unable to sign in. Please try again.");
-      return;
-    }
+      if (error) {
+        setStatusMessage(formatClerkAuthError(error, "Unable to sign in. Please try again."));
+        return;
+      }
 
-    if (signIn.status === "complete") {
-      await signIn.finalize({
-        navigate: ({ session, decorateUrl }) => {
-          if (session?.currentTask) {
-            console.log(session.currentTask);
+      if (signIn.status === "complete") {
+        await signIn.finalize({
+          navigate: ({ session, decorateUrl }) => {
+            if (session?.currentTask) {
+              setStatusMessage("Your account needs one more security step.");
+              return;
+            }
+
+            pushDecoratedUrl(router, decorateUrl, "/");
+          },
+        });
+      } else if (
+        signIn.status === "needs_second_factor" ||
+        signIn.status === "needs_client_trust"
+      ) {
+        if (emailCodeFactor) {
+          const { error: verificationError } = await signIn.mfa.sendEmailCode();
+          if (verificationError) {
+            setStatusMessage(
+              formatClerkAuthError(verificationError, "Unable to send a verification code."),
+            );
             return;
           }
-
-          pushDecoratedUrl(router, decorateUrl, "/");
-        },
-      });
-    } else if (signIn.status === "needs_second_factor" || signIn.status === "needs_client_trust") {
-      if (emailCodeFactor) {
-        await signIn.mfa.sendEmailCode();
-        setStatusMessage(`We sent a verification code to ${emailCodeFactor.safeIdentifier}.`);
+          setStatusMessage(`We sent a verification code to ${emailCodeFactor.safeIdentifier}.`);
+        } else {
+          setStatusMessage(
+            "A second factor is required, but this screen only supports email codes right now.",
+          );
+        }
       } else {
-        console.error("Second factor is required, but email_code is not available:", signIn);
-        setStatusMessage(
-          "A second factor is required, but this screen only supports email codes right now.",
-        );
+        setStatusMessage("Sign-in could not be completed. Please try again.");
       }
-    } else {
-      console.error("Sign-in attempt not complete:", signIn);
-      setStatusMessage("Sign-in could not be completed. Check the logs for more details.");
+    } catch (error) {
+      setStatusMessage(formatClerkAuthError(error, "Unable to sign in. Please try again."));
     }
   };
 
   const handleVerify = async () => {
     setStatusMessage(null);
 
-    await signIn.mfa.verifyEmailCode({ code });
+    try {
+      const { error } = await signIn.mfa.verifyEmailCode({ code: code.trim() });
 
-    if (signIn.status === "complete") {
-      await signIn.finalize({
-        navigate: ({ session, decorateUrl }) => {
-          if (session?.currentTask) {
-            console.log(session.currentTask);
-            return;
-          }
+      if (error) {
+        setStatusMessage(formatClerkAuthError(error, "That verification code is not valid."));
+        return;
+      }
 
-          pushDecoratedUrl(router, decorateUrl, "/");
-        },
-      });
-    } else {
-      console.error("Sign-in attempt not complete:", signIn);
-      setStatusMessage("That code did not complete sign-in. Please try again.");
+      if (signIn.status === "complete") {
+        await signIn.finalize({
+          navigate: ({ session, decorateUrl }) => {
+            if (session?.currentTask) {
+              setStatusMessage("Your account needs one more security step.");
+              return;
+            }
+
+            pushDecoratedUrl(router, decorateUrl, "/");
+          },
+        });
+      } else {
+        setStatusMessage("That code did not complete sign-in. Please try again.");
+      }
+    } catch (error) {
+      setStatusMessage(formatClerkAuthError(error, "That verification code is not valid."));
     }
   };
 
