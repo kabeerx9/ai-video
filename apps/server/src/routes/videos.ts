@@ -1,5 +1,6 @@
 import { getAuth, clerkClient } from "@clerk/fastify";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import { Readable } from "node:stream";
 import { z } from "zod";
 
 import type { AppContainer } from "@/container";
@@ -23,6 +24,14 @@ type ByteRange = {
   start: number;
   end: number;
 };
+
+function toNodeStream(response: Response) {
+  if (!response.body) {
+    return null;
+  }
+
+  return Readable.fromWeb(response.body);
+}
 
 export function parseByteRange(rangeHeader: string, contentLength: number): ByteRange | null {
   const match = /^bytes=(\d*)-(\d*)$/.exec(rangeHeader.trim());
@@ -179,7 +188,7 @@ export function registerVideoRoutes(fastify: FastifyInstance, container: AppCont
         requestedRange,
       );
       const contentType = videoResponse.headers.get("content-type") ?? "video/mp4";
-      const buffer = Buffer.from(await videoResponse.arrayBuffer());
+      const upstreamContentLength = videoResponse.headers.get("content-length");
       const upstreamContentRange = videoResponse.headers.get("content-range");
 
       reply
@@ -188,14 +197,23 @@ export function registerVideoRoutes(fastify: FastifyInstance, container: AppCont
         .header("Cache-Control", "private, max-age=3600");
 
       if (requestedRange && videoResponse.status === 206 && upstreamContentRange) {
+        const stream = toNodeStream(videoResponse);
+        if (!stream) {
+          return reply.code(502).send({ error: "Video content was empty" });
+        }
+
+        if (upstreamContentLength) {
+          reply.header("Content-Length", upstreamContentLength);
+        }
+
         return reply
           .code(206)
           .header("Content-Range", upstreamContentRange)
-          .header("Content-Length", buffer.length)
-          .send(buffer);
+          .send(stream);
       }
 
       if (requestedRange) {
+        const buffer = Buffer.from(await videoResponse.arrayBuffer());
         const range = parseByteRange(requestedRange, buffer.length);
         if (!range) {
           return reply
@@ -213,7 +231,16 @@ export function registerVideoRoutes(fastify: FastifyInstance, container: AppCont
           .send(partialBuffer);
       }
 
-      return reply.header("Content-Length", buffer.length).send(buffer);
+      const stream = toNodeStream(videoResponse);
+      if (!stream) {
+        return reply.code(502).send({ error: "Video content was empty" });
+      }
+
+      if (upstreamContentLength) {
+        reply.header("Content-Length", upstreamContentLength);
+      }
+
+      return reply.send(stream);
     } catch (error) {
       return handleRouteError(error, reply);
     }

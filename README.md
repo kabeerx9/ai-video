@@ -85,6 +85,14 @@ Open [http://localhost:3001](http://localhost:3001) in your browser to see the w
 Use the Expo Go app to run the mobile application.
 The API is running at [http://localhost:3000](http://localhost:3000).
 
+## Backend deployment
+
+The Fastify API deploys to its own Vercel project with `apps/server` as the
+project root. Production is available at
+[ai-video-server.vercel.app](https://ai-video-server.vercel.app). See
+[deployment.md](./deployment.md) for the environment variables, Clerk webhook
+setup, deployment commands, and EAS handoff.
+
 ## EAS development and preview builds
 
 The native app is linked to the EAS project
@@ -103,8 +111,9 @@ Before creating a preview build, deploy the API to a public HTTPS URL and config
 cd apps/native
 eas env:create --environment preview \
   --name EXPO_PUBLIC_SERVER_URL \
-  --value https://api.example.com \
-  --visibility plaintext
+  --value https://ai-video-server.vercel.app \
+  --visibility plaintext \
+  --force
 ```
 
 Create and share an Android preview:
