@@ -57,6 +57,7 @@ export default function Home() {
   const [videoSource, setVideoSource] = useState<AuthenticatedVideoSource | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPolling, setIsPolling] = useState(false);
+  const [isLoadingPreview, setIsLoadingPreview] = useState(false);
   const [downloadingJobId, setDownloadingJobId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -94,12 +95,15 @@ export default function Home() {
 
   const showPreview = useCallback(async (job: GenerationJob) => {
     setError(null);
+    setIsLoadingPreview(true);
     try {
       const source = await getGenerationJobVideoSource(job.id);
       setPreviewJob(job);
       setVideoSource(source);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Could not load the generated video");
+    } finally {
+      setIsLoadingPreview(false);
     }
   }, []);
 
@@ -410,7 +414,7 @@ export default function Home() {
               {videoSource ? (
                 <AuthenticatedVideo source={videoSource} />
               ) : (
-                <EmptyPreview loading={isPolling} />
+                <EmptyPreview loading={isPolling || isLoadingPreview} />
               )}
             </View>
             {previewJob ? (

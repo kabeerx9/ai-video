@@ -94,7 +94,7 @@ export class VideoGenerationService {
     return this.toView(updatedJob, openRouterJob);
   }
 
-  async getJobContent(userId: string, jobId: string): Promise<Response> {
+  async getJobContent(userId: string, jobId: string, range?: string): Promise<Response> {
     const job = await this.jobRepository.findByIdForUser(jobId, userId);
     if (!job) {
       throw new JobNotFoundError();
@@ -111,7 +111,7 @@ export class VideoGenerationService {
       throw new JobNotFoundError();
     }
 
-    return this.openRouterClient.fetchVideoContent(contentUrl);
+    return this.openRouterClient.fetchVideoContent(contentUrl, range);
   }
 
   private async syncJobFromOpenRouter(

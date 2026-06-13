@@ -19,6 +19,52 @@ const listJobsQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(50).default(12),
 });
 
+type ByteRange = {
+  start: number;
+  end: number;
+};
+
+export function parseByteRange(rangeHeader: string, contentLength: number): ByteRange | null {
+  const match = /^bytes=(\d*)-(\d*)$/.exec(rangeHeader.trim());
+  if (!match || contentLength <= 0) {
+    return null;
+  }
+
+  const [, rawStart, rawEnd] = match;
+  if (!rawStart && !rawEnd) {
+    return null;
+  }
+
+  if (!rawStart) {
+    const suffixLength = Number(rawEnd);
+    if (!Number.isSafeInteger(suffixLength) || suffixLength <= 0) {
+      return null;
+    }
+
+    return {
+      start: Math.max(contentLength - suffixLength, 0),
+      end: contentLength - 1,
+    };
+  }
+
+  const start = Number(rawStart);
+  const requestedEnd = rawEnd ? Number(rawEnd) : contentLength - 1;
+  if (
+    !Number.isSafeInteger(start) ||
+    !Number.isSafeInteger(requestedEnd) ||
+    start < 0 ||
+    start >= contentLength ||
+    requestedEnd < start
+  ) {
+    return null;
+  }
+
+  return {
+    start,
+    end: Math.min(requestedEnd, contentLength - 1),
+  };
+}
+
 async function resolveAuthenticatedUserId(request: FastifyRequest, reply: FastifyReply) {
   const { userId: clerkUserId } = getAuth(request);
 
@@ -126,14 +172,48 @@ export function registerVideoRoutes(fastify: FastifyInstance, container: AppCont
 
     try {
       const { jobId } = request.params as { jobId: string };
-      const videoResponse = await videoGenerationService.getJobContent(userId, jobId);
+      const requestedRange = request.headers.range;
+      const videoResponse = await videoGenerationService.getJobContent(
+        userId,
+        jobId,
+        requestedRange,
+      );
       const contentType = videoResponse.headers.get("content-type") ?? "video/mp4";
       const buffer = Buffer.from(await videoResponse.arrayBuffer());
+      const upstreamContentRange = videoResponse.headers.get("content-range");
 
-      return reply
+      reply
+        .header("Accept-Ranges", "bytes")
         .header("Content-Type", contentType)
-        .header("Cache-Control", "private, max-age=3600")
-        .send(buffer);
+        .header("Cache-Control", "private, max-age=3600");
+
+      if (requestedRange && videoResponse.status === 206 && upstreamContentRange) {
+        return reply
+          .code(206)
+          .header("Content-Range", upstreamContentRange)
+          .header("Content-Length", buffer.length)
+          .send(buffer);
+      }
+
+      if (requestedRange) {
+        const range = parseByteRange(requestedRange, buffer.length);
+        if (!range) {
+          return reply
+            .code(416)
+            .header("Content-Range", `bytes */${buffer.length}`)
+            .header("Content-Length", 0)
+            .send();
+        }
+
+        const partialBuffer = buffer.subarray(range.start, range.end + 1);
+        return reply
+          .code(206)
+          .header("Content-Range", `bytes ${range.start}-${range.end}/${buffer.length}`)
+          .header("Content-Length", partialBuffer.length)
+          .send(partialBuffer);
+      }
+
+      return reply.header("Content-Length", buffer.length).send(buffer);
     } catch (error) {
       return handleRouteError(error, reply);
     }

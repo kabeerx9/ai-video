@@ -98,10 +98,11 @@ export class OpenRouterVideoClient implements IOpenRouterVideoClient {
     return mapJob(raw);
   }
 
-  async fetchVideoContent(contentUrl: string): Promise<Response> {
+  async fetchVideoContent(contentUrl: string, range?: string): Promise<Response> {
     const response = await fetch(contentUrl, {
       headers: {
         Authorization: `Bearer ${this.apiKey}`,
+        ...(range ? { Range: range } : {}),
       },
     });
 

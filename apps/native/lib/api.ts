@@ -101,19 +101,14 @@ export function getGenerationJob(jobId: string) {
   return apiFetch<{ job: GenerationJob }>(`/api/videos/jobs/${jobId}`);
 }
 
-export async function getGenerationJobVideoSource(jobId: string) {
-  const token = await getClerkAuthToken();
-  return {
-    uri: `${env.EXPO_PUBLIC_SERVER_URL}/api/videos/jobs/${jobId}/content`,
-    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-    contentType: "progressive" as const,
-  };
-}
-
-export async function downloadGenerationJob(jobId: string) {
-  const token = await getClerkAuthToken();
+async function cacheGenerationJobVideo(jobId: string) {
   const destination = new File(Paths.cache, `ai-video-${jobId}.mp4`);
-  const file = await File.downloadFileAsync(
+  if (destination.exists) {
+    return destination;
+  }
+
+  const token = await getClerkAuthToken();
+  return File.downloadFileAsync(
     `${env.EXPO_PUBLIC_SERVER_URL}/api/videos/jobs/${jobId}/content`,
     destination,
     {
@@ -121,6 +116,18 @@ export async function downloadGenerationJob(jobId: string) {
       idempotent: true,
     },
   );
+}
+
+export async function getGenerationJobVideoSource(jobId: string) {
+  const file = await cacheGenerationJobVideo(jobId);
+  return {
+    uri: file.uri,
+    contentType: "progressive" as const,
+  };
+}
+
+export async function downloadGenerationJob(jobId: string) {
+  const file = await cacheGenerationJobVideo(jobId);
 
   if (!(await Sharing.isAvailableAsync())) {
     throw new Error("Sharing is not available on this device");

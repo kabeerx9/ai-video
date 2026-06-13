@@ -8,5 +8,5 @@ export interface IOpenRouterVideoClient {
   listModels(): Promise<VideoModelSummary[]>;
   createVideo(input: CreateVideoGenerationInput): Promise<OpenRouterVideoJob>;
   getJob(openRouterJobId: string): Promise<OpenRouterVideoJob>;
-  fetchVideoContent(contentUrl: string): Promise<Response>;
+  fetchVideoContent(contentUrl: string, range?: string): Promise<Response>;
 }
