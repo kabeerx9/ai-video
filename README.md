@@ -93,6 +93,9 @@ project root. Production is available at
 [deployment.md](./deployment.md) for the environment variables, Clerk webhook
 setup, deployment commands, and EAS handoff.
 
+The Vite frontend is deployed separately at
+[ai-video-web-lemon.vercel.app](https://ai-video-web-lemon.vercel.app).
+
 ## EAS development and preview builds
 
 The native app is linked to the EAS project

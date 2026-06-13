@@ -1,6 +1,7 @@
 # Deployment
 
-The Fastify backend deploys as its own Vercel project from this monorepo.
+The web frontend and Fastify backend deploy as separate Vercel projects from
+this monorepo.
 
 ## Vercel project
 
@@ -37,6 +38,38 @@ The server deployment uses:
 - `apps/server/index.mjs` as Vercel's detected Fastify entrypoint
 
 Do not commit the generated `.vercel` directory.
+
+## Web frontend
+
+Current production deployment:
+
+```txt
+Project: ai-video-web
+URL: https://ai-video-web-lemon.vercel.app
+```
+
+Create a second Vercel project with:
+
+```txt
+Root Directory: apps/web
+Framework Preset: Vite
+```
+
+Configure:
+
+```txt
+VITE_SERVER_URL=https://ai-video-server.vercel.app
+VITE_CLERK_PUBLISHABLE_KEY=your-clerk-publishable-key
+```
+
+`apps/web/vercel.json` rewrites client-side TanStack Router routes to
+`index.html`, so direct navigation to `/dashboard` and `/sso-callback` works.
+
+Set the backend production `CORS_ORIGIN` to:
+
+```txt
+https://ai-video-web-lemon.vercel.app
+```
 
 ## Backend environment
 
